@@ -1,0 +1,44 @@
+"use client";
+import { useEffect, useState } from 'react';
+import { supabase } from '@/lib/supabase';
+
+export default function AdminDashboard() {
+  const [members, setMembers] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchMembers = async () => {
+      const { data } = await supabase.from('members').select('*');
+      if (data) setMembers(data);
+    };
+    fetchMembers();
+  }, []);
+
+  return (
+    <div className="p-8 bg-gray-100 min-h-screen" dir="rtl">
+      <h1 className="text-2xl font-bold mb-6">طلبات العضوية الجديدة</h1>
+      <table className="w-full bg-white rounded-lg shadow">
+        <thead>
+          <tr className="bg-blue-900 text-white">
+            <th className="p-3 text-right">الاسم</th>
+            <th className="p-3 text-right">المحافظة</th>
+            <th className="p-3 text-right">الرقم القومي</th>
+            <th className="p-3 text-right">صورة البطاقة</th>
+          </tr>
+        </thead>
+        <tbody>
+          {members.map((member) => (
+            <tr key={member.id} className="border-b">
+              <td className="p-3">{member.full_name}</td>
+              <td className="p-3">{member.governorate}</td>
+              <td className="p-3">{member.national_id}</td>
+              <td className="p-3">
+                <a href={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/member-files/${member.id_card_url}`} 
+                   target="_blank" className="text-blue-600 underline">عرض الملف</a>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
